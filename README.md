@@ -103,7 +103,7 @@ ASCII字符无法表示中文
 
 可见，1个中文字符经过UTF-8编码后通常会占用3个字节，而1个英文字符只占用1个字节。
 
-#### 占位符 %?
+#### %? 占位符
 
 `%s`表示用字符串；`%d`表示用整数；`%f`表示用浮点数；`%x`表示用十六进制数；
 
@@ -123,11 +123,9 @@ Hi, Michael, you have $1000000.
 
 #### list和tuple
 
-##### list
+##### list 有序集合
 
-list是一种有序的集合，可以随时添加和删除其中的元素。
-
-列出班里所有同学的名字，就可以用一个list表示：
+可以随时添加和删除其中的元素。
 
 ```python
 >>> classmates = ['Michael', 'Bob', 'Tracy']
@@ -237,9 +235,9 @@ list元素也可以是另一个list：
 0
 ```
 
-##### tuple
+##### tuple 元组
 
-另一种有序列表叫元组：tuple。tuple和list非常类似，但是tuple一旦初始化就不能修改，比如同样是列出同学的名字：
+tuple一旦初始化就不能修改
 
 ```python
 >>> classmates = ('Michael', 'Bob', 'Tracy')
@@ -389,14 +387,6 @@ else:
 
 ##### 练习
 
-小明身高1.75，体重80.5kg。请根据BMI公式（体重除以身高的平方）帮小明计算他的BMI指数，并根据BMI指数：
-
-- 低于18.5：过轻
-- 18.5-25：正常
-- 25-28：过重
-- 28-32：肥胖
-- 高于32：严重肥胖
-
 ```python
 h = input('height: ')
 h = float(h)
@@ -471,9 +461,9 @@ for n in L:
     print('Hello,',n)
 ```
 
-##### break
+##### break 中断
 
-如果我们想只打印前十个
+循环过程中直接退出循环：
 
 ```python
 n = 1
@@ -485,13 +475,11 @@ while n <= 100:
 print('END')
 ```
 
-`break`，在循环过程中直接退出循环
+##### continue 跳过
 
-##### continue
+提前结束本轮循环，并开始下一轮循环。
 
-如果我们想只打印奇数
-
-```
+```python
 n = 0
 while n < 10:
     n = n + 1
@@ -500,22 +488,11 @@ while n < 10:
     print(n)
 ```
 
-`continue`，提前结束本轮循环，并直接开始下一轮循环。
-
 #### dict和set
 
-##### dict
+##### dict 字典
 
-Python内置了字典：dict，dict全称dictionary，在其他语言中也称为map，使用键-值（key-value）存储，具有极快的查找速度。
-
-举个例子，假设要根据同学的名字查找对应的成绩，如果用list实现，需要两个list：
-
-```
-names = ['Michael', 'Bob', 'Tracy']
-scores = [95, 75, 85]
-```
-
-如果用dict实现
+dict全称dictionary，在其他语言中也称为map，使用键-值（key-value）存储，具有极快的查找速度。
 
 ```
 >>> d = {'Michael': 95, 'Bob': 75, 'Tracy': 85}
@@ -850,3 +827,367 @@ print(quadratic(a,b,c))
 
 [罗技585虚拟机滚轮失灵](https://blog.csdn.net/baidu_18197725/article/details/82787520)
 
+##### 位置参数
+
+```
+def power(x):
+    return x * x
+```
+
+`power(x)`函数，参数`x`就是一个位置参数。
+
+```python
+def power(x, n):
+    s = 1
+    while n > 0:
+        n = n - 1
+        s = s * x
+    return s
+```
+
+`power(x,n)`函数，参数`x`和`n`是两个位置参数。
+
+##### 默认参数
+
+```python
+def power(x, n=2): #由于经常计算x2，所以可以把第二个参数n的默认值设定为2
+    s = 1
+    while n > 0:
+        n = n - 1
+        s = s * x
+    return s
+```
+
+这样，当我们调用`power(5)`时，相当于调用`power(5, 2)`：
+
+```python
+>>> power(5)
+25
+>>> power(5, 2)
+25
+```
+
+举个例子，我们可以把年龄和城市设为默认参数：
+
+```python
+def enroll(name, gender, age=6, city='Beijing'):
+    print('name:', name)
+    print('gender:', gender)
+    print('age:', age)
+    print('city:', city)
+```
+
+```python
+>>> enroll('Sarah', 'F')
+name: Sarah
+gender: F
+age: 6
+city: Beijing
+```
+
+只有与默认参数不符的学生才需要提供额外的信息：
+
+```
+enroll('Bob', 'M', 7)
+enroll('Adam', 'M', city='Tianjin')
+```
+
+默认参数的坑
+
+先定义一个函数，传入一个list，添加一个`END`再返回：
+
+```
+def add_end(L=[]):
+    L.append('END')
+    return L
+```
+
+当你正常调用时，结果似乎不错：
+
+```
+>>> add_end([1, 2, 3])
+[1, 2, 3, 'END']
+>>> add_end(['x', 'y', 'z'])
+['x', 'y', 'z', 'END']
+```
+
+当你使用默认参数调用时，一开始结果也是对的：
+
+```
+>>> add_end()
+['END']
+```
+
+但是，再次调用`add_end()`时，结果就不对了：
+
+```
+>>> add_end()
+['END', 'END']
+>>> add_end()
+['END', 'END', 'END']
+```
+
+很多初学者很疑惑，默认参数是`[]`，但是函数似乎每次都“记住了”上次添加了`'END'`后的list。
+
+原因解释如下：
+
+Python函数在定义的时候，默认参数`L`的值就被计算出来了，即`[]`，因为默认参数`L`也是一个变量，它指向对象`[]`，每次调用该函数，如果改变了`L`的内容，则下次调用时，默认参数的内容就变了，不再是函数定义时的`[]`了。
+
+ 定义默认参数要牢记一点：默认参数必须指向不变对象！
+
+要修改上面的例子，我们可以用`None`这个不变对象来实现：
+
+```
+def add_end(L=None):
+    if L is None:
+        L = []
+    L.append('END')
+    return L
+```
+
+现在，无论调用多少次，都不会有问题：
+
+```
+>>> add_end()
+['END']
+>>> add_end()
+['END']
+```
+
+为什么要设计`str`、`None`这样的不变对象呢？因为不变对象一旦创建，对象内部的数据就不能修改，这样就减少了由于修改数据导致的错误。此外，由于对象不变，多任务环境下同时读取对象不需要加锁，同时读一点问题都没有。我们在编写程序时，如果可以设计一个不变对象，那就尽量设计成不变对象。
+
+##### 可变参数
+
+```python
+def calc(*numbers):
+    sum = 0
+    for n in numbers:
+        sum = sum + n * n
+    return sum
+```
+
+定义可变参数和定义一个list或tuple参数相比，仅仅在参数前面加了一个`*`号。在函数内部，参数`numbers`接收到的是一个tuple，因此，函数代码完全不变。但是，调用该函数时，可以传入任意个参数，包括0个参数：
+
+```python
+>>> calc(1, 2)
+5
+>>> calc()
+0
+```
+
+如果已经有一个list或者tuple，要调用一个可变参数怎么办？可以这样做，你在list或tuple前面加一个`*`号，把list或tuple的元素变成可变参数传进去：
+
+```python
+>>> n = [1, 2, 3]
+>>> calc(*n)
+14
+```
+
+`*nums`表示把`nums`这个list的所有元素作为可变参数传进去。这种写法相当有用，而且很常见。
+
+##### 关键字参数
+
+```python
+def person(name, age, **kw):
+    print('name:', name, 'age:', age, 'other:', kw)
+```
+
+```python
+>>> person('Michael', 30) #传入0个的关键字参数
+name: Michael age: 30 other: {}
+            
+>>> person('Michael', 45, gender='M', job='Engineer') #传入任意个数的关键字参数
+name: Michael age: 45 other: {'gender': 'M', 'job': 'Engineer'}
+            
+>>> extra = {'city': 'Beijing', 'job': 'Engineer'} #可以先组装出一个dict
+>>> person('Jack', 24, city=extra['city'], job=extra['job']) #把dict转换为关键字参数传进去
+name: Jack age: 24 other: {'city': 'Beijing', 'job': 'Engineer'}
+>>> person('Jack', 24, **extra) #简化的调用写法
+name: Jack age: 24 other: {'city': 'Beijing', 'job': 'Engineer'}
+```
+
+对`kw`的改动不会影响到函数外的`extra`。
+
+##### 命名关键字参数
+
+```python
+def person(name, age, *, city, job): #只接收city和job作为关键字参数
+    print(name, age, city, job)
+```
+
+```python
+>>> person('Jack', 24, city='Beijing', job='Engineer')
+Jack 24 Beijing Engineer
+```
+
+如果函数定义中已经有了一个可变参数，后面跟着的命名关键字参数就不再需要一个特殊分隔符`*`了：
+
+```python
+def person(name, age, *args, city, job):
+    print(name, age, 'other:', args, city, job)
+```
+
+```python
+>>> person('Jack', 24, 'Beijing', 'Engineer')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: person() takes 2 positional arguments but 4 were given
+```
+
+由于调用时缺少参数名`city`和`job`，Python解释器把这4个参数均视为位置参数，但`person()`函数仅接受2个位置参数。
+
+```python
+def person(name, age, *, city='Beijing', job): #简化调用
+    print(name, age, city, job)
+```
+
+```python
+>>> person('Jack', 24, job='Engineer') #由于city具有默认值，调用时可不传入city参数
+Jack 24 Beijing Engineer
+```
+
+##### 参数组合
+
+5种参数可以组合使用。但注意定义的顺序：必选参数、默认参数、可变参数、命名关键字参数和关键字参数。
+
+```python
+def f1(a, b, c=0, *args, **kw):
+    print('a =', a, 'b =', b, 'c =', c, 'args =', args, 'kw =', kw)
+
+def f2(a, b, c=0, *, d, **kw):
+    print('a =', a, 'b =', b, 'c =', c, 'd =', d, 'kw =', kw)
+```
+
+在函数调用的时候，Python解释器自动按照参数位置和参数名把对应的参数传进去。
+
+```python
+>>> f1(1, 2)
+a = 1 b = 2 c = 0 args = () kw = {}
+>>> f1(1, 2, c=3)
+a = 1 b = 2 c = 3 args = () kw = {}
+>>> f1(1, 2, 3, 'a', 'b')
+a = 1 b = 2 c = 3 args = ('a', 'b') kw = {}
+>>> f1(1, 2, 3, 'a', 'b', x=99)
+a = 1 b = 2 c = 3 args = ('a', 'b') kw = {'x': 99}
+>>> f2(1, 2, d=99, ext=None)
+a = 1 b = 2 c = 0 d = 99 kw = {'ext': None}
+```
+
+最神奇的是通过一个tuple和dict，你也可以调用上述函数：
+
+```python
+>>> args = (1, 2, 3, 4)
+>>> kw = {'d': 99, 'x': '#'}
+>>> f1(*args, **kw)
+a = 1 b = 2 c = 3 args = (4,) kw = {'d': 99, 'x': '#'}
+>>> args = (1, 2, 3)
+>>> kw = {'d': 88, 'x': '#'}
+>>> f2(*args, **kw)
+a = 1 b = 2 c = 3 d = 88 kw = {'x': '#'}
+```
+
+所以，对于任意函数，都可以通过类似`func(*args, **kw)`的形式调用它，无论它的参数是如何定义的。
+
+递归函数。
+
+举个例子，我们来计算阶乘`n! = 1 x 2 x 3 x ... x n`，用函数`fact(n)`表示，可以看出：
+
+fact(n) = n! = 1 x 2 x 3 x ... x (n-1) x n = (n-1)! x n = fact(n-1) x n
+
+所以，`fact(n)`可以表示为`n x fact(n-1)`，只有n=1时需要特殊处理。
+
+于是，`fact(n)`用递归的方式写出来就是：
+
+```
+def fact(n):
+    if n==1:
+        return 1
+    return n * fact(n - 1)
+```
+
+上面就是一个递归函数。可以试试：
+
+```
+>>> fact(1)
+1
+>>> fact(5)
+120
+>>> fact(100)
+93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000
+```
+
+如果我们计算`fact(5)`，可以根据函数定义看到计算过程如下：
+
+```ascii
+===> fact(5)
+===> 5 * fact(4)
+===> 5 * (4 * fact(3))
+===> 5 * (4 * (3 * fact(2)))
+===> 5 * (4 * (3 * (2 * fact(1))))
+===> 5 * (4 * (3 * (2 * 1)))
+===> 5 * (4 * (3 * 2))
+===> 5 * (4 * 6)
+===> 5 * 24
+===> 120
+```
+
+递归函数的优点是定义简单，逻辑清晰。理论上，所有的递归函数都可以写成循环的方式，但循环的逻辑不如递归清晰。
+
+使用递归函数需要注意防止栈溢出。在计算机中，函数调用是通过栈（stack）这种数据结构实现的，每当进入一个函数调用，栈就会加一层栈帧，每当函数返回，栈就会减一层栈帧。由于栈的大小不是无限的，所以，递归调用的次数过多，会导致栈溢出。可以试试`fact(1000)`：
+
+```
+>>> fact(1000)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 4, in fact
+  ...
+  File "<stdin>", line 4, in fact
+RuntimeError: maximum recursion depth exceeded in comparison
+```
+
+解决递归调用栈溢出的方法是通过**尾递归**优化，事实上尾递归和循环的效果是一样的，所以，把循环看成是一种特殊的尾递归函数也是可以的。
+
+尾递归是指，在函数返回的时候，调用自身本身，并且，return语句不能包含表达式。这样，编译器或者解释器就可以把尾递归做优化，使递归本身无论调用多少次，都只占用一个栈帧，不会出现栈溢出的情况。
+
+上面的`fact(n)`函数由于`return n * fact(n - 1)`引入了乘法表达式，所以就不是尾递归了。要改成尾递归方式，需要多一点代码，主要是要把每一步的乘积传入到递归函数中：
+
+```
+def fact(n):
+    return fact_iter(n, 1)
+
+def fact_iter(num, product):
+    if num == 1:
+        return product
+    return fact_iter(num - 1, num * product)
+```
+
+可以看到，`return fact_iter(num - 1, num * product)`仅返回递归函数本身，`num - 1`和`num * product`在函数调用前就会被计算，不影响函数调用。
+
+`fact(5)`对应的`fact_iter(5, 1)`的调用如下：
+
+```
+===> fact_iter(5, 1)
+===> fact_iter(4, 5)
+===> fact_iter(3, 20)
+===> fact_iter(2, 60)
+===> fact_iter(1, 120)
+===> 120
+```
+
+尾递归调用时，如果做了优化，栈不会增长，因此，无论多少次调用也不会导致栈溢出。
+
+遗憾的是，大多数编程语言没有针对尾递归做优化，Python解释器也没有做优化，所以，即使把上面的`fact(n)`函数改成尾递归方式，也会导致栈溢出。
+
+### 小结
+
+使用递归函数的优点是逻辑简单清晰，缺点是过深的调用会导致栈溢出。
+
+针对尾递归优化的语言可以通过尾递归防止栈溢出。尾递归事实上和循环是等价的，没有循环语句的编程语言只能通过尾递归实现循环。
+
+Python标准的解释器没有针对尾递归做优化，任何递归函数都存在栈溢出的问题。
+
+### 练习
+
+[汉诺塔](http://baike.baidu.com/view/191666.htm)的移动可以用递归函数非常简单地实现。
+
+请编写`move(n, a, b, c)`函数，它接收参数`n`，表示3个柱子A、B、C中第1个柱子A的盘子数量，然后打印出把所有盘子从A借助B移动到C的方法，例如：
