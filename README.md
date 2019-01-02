@@ -241,8 +241,9 @@ list元素也可以是另一个list：
 
 另一种有序列表叫元组：tuple。tuple和list非常类似，但是tuple一旦初始化就不能修改，比如同样是列出同学的名字：
 
-```
+```python
 >>> classmates = ('Michael', 'Bob', 'Tracy')
+('Michael', 'Bob', 'Tracy')
 ```
 
 现在，classmates这个tuple不能变了，它也没有`append()`，`insert()`这样的方法。其他获取元素的方法和list是一样的，你可以正常地使用`classmates[0]`，`classmates[-1]`，但不能赋值成另外的元素。
@@ -472,6 +473,8 @@ for n in L:
 
 ##### break
 
+如果我们想只打印前十个
+
 ```python
 n = 1
 while n <= 100:
@@ -482,18 +485,11 @@ while n <= 100:
 print('END')
 ```
 
+`break`，在循环过程中直接退出循环
+
 ##### continue
 
-在循环过程中，也可以通过`continue`语句，跳过当前的这次循环，直接开始下一次循环。
-
-```
-n = 0
-while n < 10:
-    n = n + 1
-    print(n)
-```
-
-上面的程序可以打印出1～10。但是，如果我们想只打印奇数，可以用`continue`语句跳过某些循环：
+如果我们想只打印奇数
 
 ```
 n = 0
@@ -504,18 +500,353 @@ while n < 10:
     print(n)
 ```
 
-执行上面的代码可以看到，打印的不再是1～10，而是1，3，5，7，9。
+`continue`，提前结束本轮循环，并直接开始下一轮循环。
 
-可见`continue`的作用是提前结束本轮循环，并直接开始下一轮循环。
+#### dict和set
+
+##### dict
+
+Python内置了字典：dict，dict全称dictionary，在其他语言中也称为map，使用键-值（key-value）存储，具有极快的查找速度。
+
+举个例子，假设要根据同学的名字查找对应的成绩，如果用list实现，需要两个list：
+
+```
+names = ['Michael', 'Bob', 'Tracy']
+scores = [95, 75, 85]
+```
+
+如果用dict实现
+
+```
+>>> d = {'Michael': 95, 'Bob': 75, 'Tracy': 85}
+>>> d['Michael']
+95
+```
+
+为什么dict查找速度这么快？因为提前记住了存储位置，直接取出来，所以速度非常快。
+
+这种key-value存储方式，在放进去的时候，必须根据key算出value的存放位置，这样，取的时候才能根据key直接拿到value。
+
+把数据放入dict的方法，除了初始化时指定外，还可以通过key放入：
+
+```
+>>> d['Adam'] = 67
+>>> d['Adam']
+67
+```
+
+由于一个key只能对应一个value，所以，多次对一个key放入value，后面的值会把前面的值冲掉：
+
+```
+>>> d['Jack'] = 90
+>>> d['Jack']
+90
+>>> d['Jack'] = 88
+>>> d['Jack']
+88
+```
+
+如果key不存在，dict就会报错，要避免key不存在的错误，有两种办法：
+
+一是通过`in`判断key是否存在：
+
+```
+>>> 'Thomas' in d
+False
+```
+
+二是通过dict提供的`get()`方法，如果key不存在，可以返回`None`，或者自己指定的value：
+
+```
+>>> d.get('Thomas')
+>>> d.get('Thomas', -1)
+-1
+```
+
+注意：返回`None`的时候Python的交互环境不显示结果。
+
+要删除一个key，用`pop(key)`方法，对应的value也会从dict中删除：
+
+```
+>>> d.pop('Bob')
+75
+>>> d
+{'Michael': 95, 'Tracy': 85}
+```
+
+请务必注意，dict内部存放的顺序和key放入的顺序是没有关系的。
+
+dict的key必须是**不可变对象**。在Python中，字符串、整数等都是不可变的，因此，可以放心地作为key。而list是可变的，就不能作为key：这个通过key计算位置的算法称为哈希算法（Hash）。
+
+```
+>>> key = [1, 2, 3]
+>>> d[key] = 'a list'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unhashable type: 'list'
+```
+
+##### set
+
+set和dict类似，也是一组key的集合，但不存储value。由于key不能重复，所以，在set中，没有重复的key。
+
+要创建一个set，需要提供一个list作为输入集合：
+
+```
+>>> s = set([2, 2, 1, 2, 3, 3, 3])
+>>> s
+{1, 2, 3}
+```
+
+注意，传入的参数`[1, 2, 3]`是一个list，而显示的`{1, 2, 3}`只是告诉你这个set内部有1，2，3这3个元素，显示的顺序也不表示set是有序的。重复元素在set中自动被过滤：
+
+通过`add(key)`方法可以添加元素到set中，可以重复添加，但不会有效果：
+
+```
+>>> s.add(4)
+>>> s
+{1, 2, 3, 4}
+>>> s.add(4)
+>>> s
+{1, 2, 3, 4}
+```
+
+通过`remove(key)`方法可以删除元素：
+
+```
+>>> s.remove(4)
+>>> s
+{1, 2, 3}
+```
+
+两个set可以做数学意义上的交集、并集等操作：
+
+```
+>>> s1 = set([1, 2, 3])
+>>> s2 = set([2, 3, 4])
+>>> s1 & s2
+{2, 3}
+>>> s1 | s2
+{1, 2, 3, 4}
+```
+
+set和dict的唯一区别仅在于没有存储对应的value，但是，set的原理和dict一样，所以，同样不可以放入可变对象，因为无法判断两个可变对象是否相等，也就无法保证set内部“不会有重复元素”。试试把list放入set，看看是否会报错。
+
+##### 再议不可变对象
+
+str是不变对象，而list是可变对象。
+
+对于可变对象，比如list，对list进行操作，list内部的内容是会变化的，比如：
+
+```
+>>> a = ['c', 'b', 'a']
+>>> a.sort()
+>>> a
+['a', 'b', 'c']
+```
+
+而对于不可变对象，比如str，对str进行操作呢：
+
+```python
+>>> a = 'abc'
+>>> b = a.replace('a', 'A')
+>>> b
+'Abc'
+>>> a
+'abc'
+```
+
+虽然字符串有个`replace()`方法，也确实变出了`'Abc'`，但变量`a`最后仍是`'abc'`
 
 ##### 小结
 
-循环是让计算机做重复任务的有效的方法。
+使用key-value存储结构的dict在Python中非常有用，选择不可变对象作为key很重要，最常用的key是字符串。
 
-`break`语句可以在循环过程中直接退出循环，而`continue`语句可以提前结束本轮循环，并直接开始下一轮循环。这两个语句通常都*必须*配合`if`语句使用。
+tuple虽然是不变对象，但试试把`(1, 2, 3)`和`(1, [2, 3])`放入dict或set中，并解释结果。
 
-*要特别注意*，不要滥用`break`和`continue`语句。`break`和`continue`会造成代码执行逻辑分叉过多，容易出错。大多数循环并不需要用到`break`和`continue`语句，上面的两个例子，都可以通过改写循环条件或者修改循环逻辑，去掉`break`和`continue`语句。
+## 第二天
 
-有些时候，如果代码写得有问题，会让程序陷入“死循环”，也就是永远循环下去。这时可以用`Ctrl+C`退出程序，或者强制结束Python进程。
 
-请试写一个死循环程序。
+
+### 争取完成一半
+
+#### 函数
+
+Python内置了很多有用的函数，我们可以直接调用。
+
+要调用一个函数，需要知道函数的名称和参数，比如求绝对值的函数`abs`，只有一个参数。[可以直接从Python的官方网站查看文档：](http://docs.python.org/3/library/functions.html#abs)也可以在交互式命令行通过`help(abs)`查看`abs`函数的帮助信息。
+
+##### `abs()`
+
+```
+>>> abs(-7.8)
+7.8
+```
+
+传入的参数数量不对，会报`TypeError`的错误，并且明确地告诉你：`abs()`有且仅有1个参数：
+
+```python
+>>> abs(1, 2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: abs() takes exactly one argument (2 given)
+```
+
+传入的参数数量是对的，但参数类型不能被函数所接受，也会报`TypeError`的错误，并且给出错误信息：`str`是错误的参数类型：
+
+```
+>>> abs('a')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bad operand type for abs(): 'str'
+```
+
+##### `max()`
+
+```
+>>> max(2, 3, 1, -5)
+3
+```
+
+##### `int(),float(),str(),bool(),hex()`
+
+```python
+>>> int(12.34)
+12
+>>> float('12')
+12.0
+>>> str(1.23)
+'1.23'
+>>> bool(1)
+True
+>>> bool()
+False
+```
+
+##### 函数“别名”
+
+```
+>>> a = abs # 变量a指向abs函数
+>>> a(-1) # 所以也可以通过a调用abs函数
+1
+```
+
+##### `def()`
+
+```python
+def my_abs(x): #自定义一个求绝对值函数
+    if x >= 0:
+        return x
+    else:
+        return -x
+```
+
+如果没有`return`语句，函数执行完毕后也会返回结果，只是结果为`None`
+
+##### `pass`
+
+`pass`语句什么都不做，那有什么用？实际上`pass`可以用来作为占位符，比如现在还没想好怎么写函数的代码，就可以先放一个`pass`，让代码能运行起来。
+
+```python
+def nop():
+    pass
+```
+
+`pass`还可以用在其他语句里，比如：
+
+```python
+if age >= 18:
+    pass
+```
+
+缺少了`pass`，代码运行就会有语法错误
+
+##### `isinstance()`
+
+内置函数数据类型检查，对参数类型做检查，只允许整数和浮点数类型的参数。
+
+```python
+def my_abs(x):
+    if not isinstance(x, (int, float)):
+        raise TypeError('bad operand type')
+    if x >= 0:
+        return x
+    else:
+        return -x
+```
+
+##### 返回多个值
+
+```python
+import math
+
+def move(x, y, step, angle=0):
+    nx = x + step * math.cos(angle)
+    ny = y - step * math.sin(angle)
+    return nx, ny
+```
+
+`import math`语句表示导入`math`包，并允许后续代码引用`math`包里的`sin`、`cos`等函数。
+
+然后，我们就可以同时获得返回值：
+
+```
+>>> x, y = move(100, 100, 60, math.pi / 6)
+>>> print(x, y)
+151.96152422706632 70.0
+```
+
+但其实这只是一种假象，Python函数返回的仍然是单一值：
+
+```
+>>> r = move(100, 100, 60, math.pi / 6)
+>>> print(r)
+(151.96152422706632, 70.0)
+```
+
+原来返回值是一个tuple！但是，在语法上，返回一个tuple可以省略括号，而多个变量可以同时接收一个tuple，按位置赋给对应的值，所以，Python的函数返回多值其实就是返回一个tuple，但写起来更方便。
+
+##### `quadratic`
+
+请定义一个函数`quadratic(a, b, c)`，接收3个参数，返回一元二次方程的两个解。
+
+```python
+import math
+
+def quadratic(a,b,c):
+    if not isinstance(a,(int,float)):
+        raise TypeError('a is not a number,please try again')
+    if not isinstance(b,(int,float)):
+        raise TypeError('b is not a number,please try again')
+    if not isinstance(c,(int,float)):
+        raise TypeError('b is not a number,please try again')
+    d = b*b - 4*a*c
+    if d < 0:
+        return 'b*b-4*a*c= ',d,'<0,方程无解'
+    else:
+        if a == 0:
+            if b == 0:
+                if c == 0:
+                    return '方程解为全体实数'
+                else:
+                    return '方程无解'
+            else:
+                x1 = -c/b
+                x2 = x1
+                return x1,x2
+        else:
+            x1 = (-b + math.sqrt(d))/(2*a)
+            x2 = (-b - math.sqrt(d))/(2*a)
+            return x1,x2
+
+a = input('a = ')
+a = float(a)
+b = input('b = ')
+b = float(b)
+c = input('c = ')
+c = float(c)
+print(quadratic(a,b,c))
+```
+
+[罗技585虚拟机滚轮失灵](https://blog.csdn.net/baidu_18197725/article/details/82787520)
+
