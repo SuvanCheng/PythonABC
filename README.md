@@ -2,6 +2,10 @@
 
 多谢 @[雪峰](https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/001431676242561226b32a9ec624505bb8f723d0027b3e7000)
 
+<p align="right">
+    🚩 <a href="Thursday.md">第三天</a>
+</p>
+
 ## 第一天
 
 2019/1/1
