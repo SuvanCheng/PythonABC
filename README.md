@@ -34,8 +34,7 @@ Michael
 `\\`表示的字符就是`\`
 `...`是提示符，不是代码的一部分
 
-Python 3版本中，字符串是以Unicode编码，字符串支持多语言；
-汉字`中`已经超出了ASCII编码的范围，用Unicode编码是十进制的`20013`
+Python3版本中，字符串是以Unicode编码，字符串支持多语言；
 
 ```python
 >>> print(ord('A'))
@@ -44,7 +43,7 @@ Python 3版本中，字符串是以Unicode编码，字符串支持多语言；
 B
 >>> print(chr(20013))
 中
->>> print(ord('中'))
+>>> print(ord('中')) # 汉字`中`已经超出了ASCII编码的范围，用Unicode编码是十进制的20013
 20013
 >>> print('\u4e2d\u6587')
 中文
@@ -102,7 +101,7 @@ ASCII字符无法表示中文
 'A, bcd'
 ```
 
-#### %? 占位符
+##### %? 占位符
 
 `%s`表示用字符串；`%d`表示用整数；`%f`表示用浮点数；`%x`表示用十六进制数；
 
@@ -120,9 +119,9 @@ Hi, Michael, you have $1000000.
 3.1416
 ```
 
-#### list和tuple
+#### 组
 
-##### list 有序集合
+##### list 集合
 
 ```python
 >>> classmates = ['Michael', 'Bob', 'Tracy'] #可以随时添加和删除其中的元素
@@ -247,7 +246,7 @@ Python
 Lisa
 ```
 
-#### 条件判断
+#### 条件
 
 ##### if
 
@@ -482,12 +481,6 @@ set和dict的唯一区别仅在于没有存储对应的value，但是，set的�
 >>> a
 'abc'
 ```
-
-##### 小结
-
-使用key-value存储结构的dict在Python中非常有用，选择不可变对象作为key很重要，最常用的key是字符串。
-
-tuple虽然是不变对象，但试试把`(1, 2, 3)`和`(1, [2, 3])`放入dict或set中，并解释结果。
 
 ## 第二天
 
@@ -1489,51 +1482,29 @@ print(L2)
 
 ##### 返回函数
 
-```
+```python
 def lazy_sum(*args):
-    def sum():
+    def sum(): # 内部函数
         ax = 0
         for n in args:
             ax = ax + n
         return ax
     return sum
+
+f1 = lazy_sum(1, 3, 5, 7, 9) # f1是一个返回的函数，并没有立刻执行，而是直到调用了`f()`才执行
+f2 = lazy_sum(1, 3, 5, 7, 9) # 每次调用都会返回一个新的函数
+print(f1==f2) # False
+print(f1()==f2()) # True
+print(f1()) # 25
 ```
 
-当我们调用`lazy_sum()`时，返回的并不是求和结果，而是求和函数：
-
-```
->>> f = lazy_sum(1, 3, 5, 7, 9)
->>> f
-<function lazy_sum.<locals>.sum at 0x101c6ed90>
-```
-
-调用函数`f`时，才真正计算求和的结果：
-
-```
->>> f()
-25
-```
-
-在这个例子中，我们在函数`lazy_sum`中又定义了函数`sum`，并且，内部函数`sum`可以引用外部函数`lazy_sum`的参数和局部变量，当`lazy_sum`返回函数`sum`时，相关参数和变量都保存在返回的函数中，这种称为“闭包（Closure）”的程序结构拥有极大的威力。
-
-请再注意一点，当我们调用`lazy_sum()`时，每次调用都会返回一个新的函数，即使传入相同的参数：
-
-```
->>> f1 = lazy_sum(1, 3, 5, 7, 9)
->>> f2 = lazy_sum(1, 3, 5, 7, 9)
->>> f1==f2
-False
-```
-
-`f1()`和`f2()`的调用结果互不影响。
-
-### 闭包
+##### 闭包 Closure
 
 注意到返回的函数在其定义内部引用了局部变量`args`，所以，当一个函数返回了一个函数后，其内部的局部变量还被新函数引用，所以，闭包用起来简单，实现起来可不容易。
 
 另一个需要注意的问题是，返回的函数并没有立刻执行，而是直到调用了`f()`才执行。我们来看一个例子：
 
-```
+```python
 def count():
     fs = []
     for i in range(1, 4):
@@ -1545,26 +1516,7 @@ def count():
 f1, f2, f3 = count()
 ```
 
-在上面的例子中，每次循环，都创建了一个新的函数，然后，把创建的3个函数都返回了。
-
-你可能认为调用`f1()`，`f2()`和`f3()`结果应该是`1`，`4`，`9`，但实际结果是：
-
-```
->>> f1()
-9
->>> f2()
-9
->>> f3()
-9
-```
-
-全部都是`9`！原因就在于返回的函数引用了变量`i`，但它并非立刻执行。等到3个函数都返回时，它们所引用的变量`i`已经变成了`3`，因此最终结果为`9`。
-
- 返回闭包时牢记一点：返回函数不要引用任何循环变量，或者后续会发生变化的变量。
-
-如果一定要引用循环变量怎么办？方法是再创建一个函数，用该函数的参数绑定循环变量当前的值，无论该循环变量后续如何更改，已绑定到函数参数的值不变：
-
-```
+```python
 def count():
     def f(j):
         def g():
@@ -1574,12 +1526,11 @@ def count():
     for i in range(1, 4):
         fs.append(f(i)) # f(i)立刻被执行，因此i的当前值被传入f()
     return fs
+    
+f1, f2, f3 = count()
 ```
 
-再看看结果：
-
 ```
->>> f1, f2, f3 = count()
 >>> f1()
 1
 >>> f2()
@@ -1590,6 +1541,175 @@ def count():
 
 缺点是代码较长，可利用lambda函数缩短代码。
 
-### 练习
+```python
+# 利用闭包返回一个计数器函数，每次调用它返回递增整数
+def createCounter():
+    def counter():
+       return next(o)
+    def f():
+        i=0
+        while 1:
+            i=i+1
+            yield i
+    o=f()
+    return counter
+```
 
-利用闭包返回一个计数器函数，每次调用它返回递增整数：
+##### 匿名函数`lambda x: x * x`
+
+```
+>>> list(map(lambda x: x * x, [1, 2, 3, 4, 5, 6, 7, 8, 9]))
+[1, 4, 9, 16, 25, 36, 49, 64, 81]
+```
+
+通过对比可以看出，匿名函数`lambda x: x * x`实际上就是：
+
+```
+def f(x):
+    return x * x
+```
+
+匿名函数有个限制，就是只能有一个表达式，不用写`return`，返回值就是该表达式的结果。
+
+```python
+>>> f = lambda x: x * x # 匿名函数也是一个函数对象，也可以把匿名函数赋值给一个变量
+>>> f
+<function <lambda> at 0x101c6ef28>
+>>> f(5) # 再利用变量来调用该函数
+25
+```
+
+```python
+def build(x, y): # 也可以把匿名函数作为返回值返回
+    return lambda: x * x + y * y
+```
+
+```python
+def is_odd(n):
+    return n % 2 == 1
+
+L = list(filter(is_odd, range(1, 20)))
+L = list(filter(lambda n:n%2==1,range(1,20)))
+
+print(L)
+
+[1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
+```
+
+由于函数也是一个对象，而且函数对象可以被赋值给变量，所以，通过变量也能调用该函数。
+
+```python
+>>> def now():
+...     print('2015-3-25')
+...
+>>> f = now
+>>> f()
+2015-3-25
+```
+
+```python
+>>> now.__name__ # 函数对象有一个`__name__`属性，可以拿到函数的名字：
+'now'
+>>> f.__name__
+'now'
+```
+
+##### 装饰器 Decorator
+
+```python
+def log(func): # 因为它是一个decorator，所以接受一个函数作为参数，并返回一个函数
+    def wrapper(*args, **kw):
+        print('call %s():' % func.__name__)
+        return func(*args, **kw)
+    return wrapper
+
+@log # @语法，把decorator置于函数的定义处
+def now():
+    print('2015-3-25')
+    
+def log(text):
+    def decorator(func):
+        def wrapper(*args, **kw):
+            print('%s %s():' % (text, func.__name__))
+            return func(*args, **kw)
+        return wrapper
+    return decorator
+
+@log('execute')
+def now():
+    print('2015-3-25')
+```
+
+```python
+import functools # 一个完整的装饰器函数
+
+def log(func):
+    @functools.wraps(func) # 把原始函数的`__name__`等属性复制到`wrapper()`函数中
+    def wrapper(*args, **kw):
+        print('call %s():' % func.__name__)
+        return func(*args, **kw)
+    return wrapper
+
+import functools
+
+def log(text):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kw):
+            print('%s %s():' % (text, func.__name__))
+            return func(*args, **kw)
+        return wrapper
+    return decorator
+```
+
+```python
+import functools
+import time
+
+def log(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kw):
+        t1 = time.time()
+        r = func(*args, **kw)
+        print('%s excute in %s ms' % (func.__name__, 1000*(time.time()-t1)))
+        return r
+    return wrapper
+
+def a_test_decorator(a_func):  # decorator
+
+    def wrapTheFunction():
+        print("before executing a_func()")
+
+        a_func()
+
+        print("after executing a_func()")
+
+    return wrapTheFunction
+
+@log # 打印该函数的执行时间
+@a_test_decorator # 
+def a_func_requiring_decoration():
+    print("need decoration")
+
+a_func_requiring_decoration()
+```
+
+##### 偏函数 Partial function
+
+`functools.partial`
+
+```python
+>>> int2 = functools.partial(int, base=2) # 把函数的某些参数设为默认值，返回一个新的函数
+>>> int2('1000000')
+64
+```
+
+当函数的参数个数太多，需要简化时，使用偏函数创建一个新函数，这个新函数可以固定住原函数的部分参数，从而在调用时更简单。
+
+建偏函数时，实际上可以接收`函数对象`、`*args`和`**kw`这3个参数。
+
+## 第三天
+
+<p align="right">
+    🚩 <a href="Thursday.md">第三天</a>| 🚀 <a href="# PythonABC">TOP</a>
+</p>
