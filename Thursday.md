@@ -75,10 +75,6 @@ def greeting(name): # 公开`greeting()`函数
 pip install Pillow
 ```
 
-Anaconda
-
-可以尝试直接`import numpy`等已安装的第三方模块。
-
 #### 模块搜索路径
 
 当我们试图加载一个模块时，默认情况下，Python解释器会搜索当前目录、所有已安装的内置模块和第三方模块对应的.py文件，搜索路径存放在`sys`模块的`path`变量中：
@@ -141,7 +137,7 @@ class Student(object): # 类名`Student`
 ##### `instance`
 
 ```python
-bart = Student('Bart Simpson', 59) # 创建实例时就不能传入空的参数
+bart = Student('Bart Simpson', 59) # 创建实例bart时就不能传入空的参数
 lisa = Student('Lisa Vivien', 99)
 ```
 
@@ -357,18 +353,18 @@ class MyObject(object):
 obj = MyObject()
 print(hasattr(obj, 'x'))  # 有属性'x'吗？
 print(hasattr(obj, 'y'))  # 有属性'y'吗？
-setattr(obj, 'y', 19)  # 设置一个属性'y'
+setattr(obj, 'y', 19)     # 设置一个属性'y'
 print(getattr(obj, 'y'))  # 获取属性'y'
 print(getattr(obj, 'z', 404))  # 获取属性'z'，如果不存在，返回默认值404
 
-print(hasattr(obj, 'power'))  # 有属性'power'吗？
-fn = getattr(obj, 'power')  # 获取属性'power'
+print(hasattr(obj, 'power'))   # 有属性'power'吗？
+fn = getattr(obj, 'power')     # 获取属性'power'
 print(fn())  # 调用fn()与调用obj.power()是一样的
 ```
 
-### 小结
+##### 小结
 
-通过内置的一系列函数，我们可以对任意一个Python对象进行剖析，拿到其内部的数据。要注意的是，只有在不知道对象信息的时候，我们才会去获取对象信息。如果可以直接写：
+只有在不知道对象信息的时候，我们才会去获取对象信息。如果可以直接写：
 
 ```
 sum = obj.x + obj.y
@@ -393,4 +389,482 @@ def readImage(fp):
 
 请注意，在Python这类动态语言中，根据鸭子类型，有`read()`方法，不代表该fp对象就是一个文件流，它也可能是网络流，也可能是内存中的一个字节流，但只要`read()`方法返回的是有效的图像数据，就不影响读取图像的功能。
 
-### 参考源码
+#### 实例属性
+
+```python
+class Student(object):
+    gender = 'X'
+
+
+Bob = Student()
+print('Bob.gender属性    :', Bob.gender)
+print('Student.gender属性:', Student.gender)
+
+Bob.gender = 'Female'
+print('Bob.gender属性    :', Bob.gender)
+print('Student.gender属性:', Student.gender)
+
+del Bob.gender
+print('Bob.gender属性    :', Bob.gender)
+print('Student.gender属性:', Student.gender)
+```
+
+```
+Bob.gender属性    : X
+Student.gender属性: X
+Bob.gender属性    : Female
+Student.gender属性: X
+Bob.gender属性    : X
+Student.gender属性: X
+```
+
+```python
+class Student(object):
+    count = 0 # 增加一个类属性(计数)
+
+    def __init__(self, name): # 每创建一个实例，Student.count 加 1
+        self.name = name
+        Student.count += 1
+```
+
+### 面向对象高级编程
+
+#### `__slots__`
+
+```python
+def set_score(self, score):
+     self.score = score
+
+Student.set_score = set_score # 给class绑定新方法后，所有实例均可调用
+```
+
+`__slots__`变量，来限制该class实例能添加的属性：
+
+```python
+class Student(object):
+    __slots__ = ('name', 'age')  # 用tuple定义允许绑定的属性名称
+
+
+s = Student()  # 创建新的实例
+s.name = 'Michael'
+s.age = 25
+s.score = 99  # 绑定不允许的属性'score'
+# AttributeError: 'Student' object has no attribute 'score'
+
+
+class GraduateStudent(Student):
+    pass
+
+
+g = GraduateStudent()
+g.score = 9999 # 绑定不允许的属性'score'
+# `__slots__`定义的属性仅对当前类实例起作用，对继承的子类是不起作用
+```
+
+#### `@property`
+
+```python
+class Student(object):
+
+    @property  # 可读属性，相当于 s.get_score()
+    def score(self):
+        return self._score
+
+    @score.setter  # 可写属性，相当于 s.set_score()
+    def score(self, value):
+        if not isinstance(value, int):
+            raise ValueError('score must be an integer!')
+        if value < 0 or value > 100:
+            raise ValueError('score must between 0 ~ 100!')
+        self._score = value
+
+
+s = Student()
+s.score = 60  # OK，实际转化为s.set_score(60)
+s.score       # OK，实际转化为s.get_score()
+print(s.score)
+```
+
+把一个getter方法变成属性，只需要加上`@property`就可以了，此时，`@property`本身又创建了另一个装饰器`@score.setter`，负责把一个setter方法变成属性赋值，于是，我们就拥有一个可控的属性操作：
+
+```python
+class Screen(object):
+    @property
+    def width(self): # 可读属性
+        return _width
+
+    @width.setter
+    def width(self, width):  # 可写属性
+        self._width = width
+
+    @property
+    def height(self): # 可读属性
+        return _height
+
+    @height.setter
+    def height(self, height):  # 可写属性
+        self._height = height
+
+    @property
+    def resolution(self):  # 可读属性，因为`resolution`可以根据`width`和`height`计算出来
+        return self._height * self._width
+```
+
+#### 多重继承 MixIn
+
+```python
+class Animal(object):
+    pass
+
+# 大类:
+class Mammal(Animal):
+    pass
+
+class Bird(Animal):
+    pass
+
+# 各种动物:
+class Dog(Mammal):
+    pass
+
+class Ostrich(Bird):
+    pass
+
+# 其它属性
+class RunnableMixIn(object):
+    def run(self):
+        print('Running...')
+
+class FlyableMixIn(object):
+    def fly(self):
+        print('Flying...')
+
+class Dog(Mammal, RunnableMixIn, CarnivorousMixIn): # 多重继承，一个子类就可以同时获得多个父类的所有功能
+    pass
+class Ostrich(Bird, FlyableMixIn, HerbivoresMixIn):
+    pass
+```
+
+##### 多进程模式的TCP服务
+
+```
+class MyTCPServer(TCPServer, ForkingMixIn):
+    pass
+```
+
+##### 多线程模式的UDP服务
+
+```
+class MyUDPServer(UDPServer, ThreadingMixIn):
+    pass
+```
+
+##### 协程模型
+
+```
+class MyTCPServer(TCPServer, CoroutineMixIn):
+    pass
+```
+
+#### 定制类
+
+##### __str__
+
+```python
+>>> class Student(object):
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return 'Student object (name: %s)' % self.name
+
+>>> s = Student('Michael')
+>>> s
+<__main__.Student object at 0x00916CB0>
+
+>>> class Student(object):
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return 'Student object (name=%s)' % self.name
+    __repr__ = __str__
+
+    
+>>> s = Student('Michael')
+>>> s
+Student object (name=Michael)
+```
+
+##### __iter__
+
+```python
+class Fib(object):
+    def __init__(self):
+        self.a, self.b = 0, 1 # 初始化两个计数器a，b
+
+    def __iter__(self):
+        return self # 实例本身就是迭代对象，故返回自己
+
+    def __next__(self):
+        self.a, self.b = self.b, self.a + self.b # 计算下一个值
+        if self.a > 100000: # 退出循环的条件
+            raise StopIteration()
+        return self.a # 返回下一个值
+
+
+for n in Fib():
+    print(n)
+
+print(Fib.a)
+```
+
+##### __getitem__
+
+```python
+class Fib(object):
+    def __getitem__(self, n): # 要像list那样按照下标取出元素，需要实现`__getitem__()`方法
+        a, b = 1, 1
+        for x in range(n):
+            a, b = b, a + b
+        return a
+
+>>> f = Fib()
+>>> f[0]
+1
+>>> f[10]
+89
+```
+
+但是list有个神奇的切片方法：
+
+```
+>>> list(range(100))[5:10]
+[5, 6, 7, 8, 9]
+```
+
+对于Fib却报错。原因是`__getitem__()`传入的参数可能是一个int，也可能是一个切片对象`slice`，所以要做判断：
+
+```
+class Fib(object):
+    def __getitem__(self, n):
+        if isinstance(n, int): # n是索引
+            a, b = 1, 1
+            for x in range(n):
+                a, b = b, a + b
+            return a
+        if isinstance(n, slice): # n是切片
+            start = n.start
+            stop = n.stop
+            if start is None:
+                start = 0
+            a, b = 1, 1
+            L = []
+            for x in range(stop):
+                if x >= start:
+                    L.append(a)
+                a, b = b, a + b
+            return L
+```
+
+现在试试Fib的切片：
+
+```
+>>> f = Fib()
+>>> f[0:5]
+[1, 1, 2, 3, 5]
+>>> f[:10]
+[1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
+```
+
+但是没有对step参数作处理：
+
+```
+>>> f[:10:2]
+[1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
+```
+
+也没有对负数作处理，所以，要正确实现一个`__getitem__()`还是有很多工作要做的。
+
+此外，如果把对象看成`dict`，`__getitem__()`的参数也可能是一个可以作key的object，例如`str`。
+
+与之对应的是`__setitem__()`方法，把对象视作list或dict来对集合赋值。最后，还有一个`__delitem__()`方法，用于删除某个元素。
+
+总之，通过上面的方法，我们自己定义的类表现得和Python自带的list、tuple、dict没什么区别，这完全归功于动态语言的“鸭子类型”，不需要强制继承某个接口。
+
+##### __getattr__
+
+正常情况下，当我们调用类的方法或属性时，如果不存在，就会报错。比如定义`Student`类：
+
+```
+class Student(object):
+
+    def __init__(self):
+        self.name = 'Michael'
+```
+
+调用`name`属性，没问题，但是，调用不存在的`score`属性，就有问题了：
+
+```
+>>> s = Student()
+>>> print(s.name)
+Michael
+>>> print(s.score)
+Traceback (most recent call last):
+  ...
+AttributeError: 'Student' object has no attribute 'score'
+```
+
+错误信息很清楚地告诉我们，没有找到`score`这个attribute。
+
+要避免这个错误，除了可以加上一个`score`属性外，Python还有另一个机制，那就是写一个`__getattr__()`方法，动态返回一个属性。修改如下：
+
+```
+class Student(object):
+
+    def __init__(self):
+        self.name = 'Michael'
+
+    def __getattr__(self, attr):
+        if attr=='score':
+            return 99
+```
+
+当调用不存在的属性时，比如`score`，Python解释器会试图调用`__getattr__(self, 'score')`来尝试获得属性，这样，我们就有机会返回`score`的值：
+
+```
+>>> s = Student()
+>>> s.name
+'Michael'
+>>> s.score
+99
+```
+
+返回函数也是完全可以的：
+
+```
+class Student(object):
+
+    def __getattr__(self, attr):
+        if attr=='age':
+            return lambda: 25
+```
+
+只是调用方式要变为：
+
+```
+>>> s.age()
+25
+```
+
+注意，只有在没有找到属性的情况下，才调用`__getattr__`，已有的属性，比如`name`，不会在`__getattr__`中查找。
+
+此外，注意到任意调用如`s.abc`都会返回`None`，这是因为我们定义的`__getattr__`默认返回就是`None`。要让class只响应特定的几个属性，我们就要按照约定，抛出`AttributeError`的错误：
+
+```
+class Student(object):
+
+    def __getattr__(self, attr):
+        if attr=='age':
+            return lambda: 25
+        raise AttributeError('\'Student\' object has no attribute \'%s\'' % attr)
+```
+
+这实际上可以把一个类的所有属性和方法调用全部动态化处理了，不需要任何特殊手段。
+
+这种完全动态调用的特性有什么实际作用呢？作用就是，可以针对完全动态的情况作调用。
+
+举个例子：
+
+现在很多网站都搞REST API，比如新浪微博、豆瓣啥的，调用API的URL类似：
+
+- <http://api.server/user/friends>
+- <http://api.server/user/timeline/list>
+
+如果要写SDK，给每个URL对应的API都写一个方法，那得累死，而且，API一旦改动，SDK也要改。
+
+利用完全动态的`__getattr__`，我们可以写出一个链式调用：
+
+```
+class Chain(object):
+
+    def __init__(self, path=''):
+        self._path = path
+
+    def __getattr__(self, path):
+        return Chain('%s/%s' % (self._path, path))
+
+    def __str__(self):
+        return self._path
+
+    __repr__ = __str__
+```
+
+试试：
+
+```
+>>> Chain().status.user.timeline.list
+'/status/user/timeline/list'
+```
+
+这样，无论API怎么变，SDK都可以根据URL实现完全动态的调用，而且，不随API的增加而改变！
+
+还有些REST API会把参数放到URL中，比如GitHub的API：
+
+```
+GET /users/:user/repos
+```
+
+调用时，需要把`:user`替换为实际用户名。如果我们能写出这样的链式调用：
+
+```
+Chain().users('michael').repos
+```
+
+就可以非常方便地调用API了。有兴趣的童鞋可以试试写出来。
+
+##### __call__
+
+一个对象实例可以有自己的属性和方法，当我们调用实例方法时，我们用`instance.method()`来调用。能不能直接在实例本身上调用呢？在Python中，答案是肯定的。
+
+任何类，只需要定义一个`__call__()`方法，就可以直接对实例进行调用。请看示例：
+
+```
+class Student(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self):
+        print('My name is %s.' % self.name)
+```
+
+```
+>>> s = Student('Michael')
+>>> s() # self参数不要传入
+My name is Michael.
+```
+
+`__call__()`还可以定义参数。对实例进行直接调用就好比对一个函数进行调用一样，所以你完全可以把对象看成函数，把函数看成对象，因为这两者之间本来就没啥根本的区别。
+
+如果你把对象看成函数，那么函数本身其实也可以在运行期动态创建出来，因为类的实例都是运行期创建出来的，这么一来，我们就模糊了对象和函数的界限。
+
+那么，怎么判断一个变量是对象还是函数呢？其实，更多的时候，我们需要判断一个对象是否能被调用，能被调用的对象就是一个`Callable`对象，比如函数和我们上面定义的带有`__call__()`的类实例：
+
+```
+>>> callable(Student())
+True
+>>> callable(max)
+True
+>>> callable([1, 2, 3])
+False
+>>> callable(None)
+False
+>>> callable('str')
+False
+```
+
+通过`callable()`函数，我们就可以判断一个对象是否是“可调用”对象。
+
+### 小结
+
+Python的class允许定义许多定制方法，可以让我们非常方便地生成特定的类。
+
+本节介绍的是最常用的几个定制方法，还有很多可定制的方法，请参考[Python的官方文档](http://docs.python.org/3/reference/datamodel.html#special-method-names)。
