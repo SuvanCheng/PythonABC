@@ -1,7 +1,5 @@
 # PythonABC
 
-多谢 @[雪峰](https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/001431676242561226b32a9ec624505bb8f723d0027b3e7000)
-
 <p align="right">
     🚩 <a href="Thursday.md">第三天</a>
 </p>
@@ -12,20 +10,15 @@
 
 ### 基本认识1
 
-#### print和input
-
 ```python
->>> print('The quick brown fox', 'jumps over', 'the lazy dog')
-The quick brown fox jumps over the lazy dog
->>> print('100 + 200 =', 100 + 200)
-100 + 200 = 300
-```
+# This is prints out a string
+print("Comments are fun")
+print('100 + 200 =', 100 + 200)
 
-```
->>> name = input()
-Michael
->>> name
-'Michael'
+'''
+Write here
+whatever you wantto comment
+'''
 ```
 
 #### 数据类型和变量
