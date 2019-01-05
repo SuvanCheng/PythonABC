@@ -138,7 +138,7 @@ Hi, Michael, you have $1000000.
 
 #### 组
 
-##### list 集合
+##### list[ ]
 
 ```python
 >>> classmates = ['Michael', 'Bob', 'Tracy'] #可以随时添加和删除其中的元素
@@ -224,7 +224,7 @@ Hi, Michael, you have $1000000.
 0
 ```
 
-##### tuple 元组
+##### tuple( )
 
 ```python
 >>> classmates = ('Michael', 'Bob', 'Tracy') #一旦初始化就不能修改
@@ -328,7 +328,7 @@ for n in names: # 执行这段代码，会依次打印names的每一个元素
     print(n)
 ```
 
-##### `range()`生成整数序列
+##### `range()`
 
 ```
 >>> list(range(5)) # range函数生成一个整数序列，通过list()转换为list
@@ -369,6 +369,7 @@ while n <= 100:
     print(n)
     n = n + 1
 print('END')
+# return 也是中断噢！
 ```
 
 ##### `continue` 跳过
@@ -384,12 +385,14 @@ while n < 10:
 
 #### dict和set
 
-##### dict 字典
+##### dict{ }
 
 dict全称dictionary，在其他语言中也称为map，使用键-值（key-value）存储，具有极快的查找速度。
 
-```
->>> d = {'Michael': 95, 'Bob': 75, 'Tracy': 85}
+```python
+>>> d = {'Michael': 95,   'Bob': 75,  'Tracy': 85}
+#           key    value   key  value   key   value
+# key是唯一的，不能重复
 >>> d['Michael']
 95
 ```

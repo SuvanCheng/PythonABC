@@ -613,8 +613,6 @@ class Fib(object):
 
 for n in Fib():
     print(n)
-
-print(Fib.a)
 ```
 
 ##### __getitem__
@@ -688,36 +686,13 @@ class Fib(object):
 
 与之对应的是`__setitem__()`方法，把对象视作list或dict来对集合赋值。最后，还有一个`__delitem__()`方法，用于删除某个元素。
 
-总之，通过上面的方法，我们自己定义的类表现得和Python自带的list、tuple、dict没什么区别，这完全归功于动态语言的“鸭子类型”，不需要强制继承某个接口。
+总之，通过上面的方法，我们自己定义的类表现得和Python自带的list、tuple、dict没什么区别，这完全归功于动态语言的“”，不需要强制继承某个接口。
 
 ##### __getattr__
 
-正常情况下，当我们调用类的方法或属性时，如果不存在，就会报错。比如定义`Student`类：
+正常情况下，当我们调用类的方法或属性时，如果不存在，就会报错。若写一个`__getattr__()`方法，动态返回一个属性。修改如下：
 
-```
-class Student(object):
-
-    def __init__(self):
-        self.name = 'Michael'
-```
-
-调用`name`属性，没问题，但是，调用不存在的`score`属性，就有问题了：
-
-```
->>> s = Student()
->>> print(s.name)
-Michael
->>> print(s.score)
-Traceback (most recent call last):
-  ...
-AttributeError: 'Student' object has no attribute 'score'
-```
-
-错误信息很清楚地告诉我们，没有找到`score`这个attribute。
-
-要避免这个错误，除了可以加上一个`score`属性外，Python还有另一个机制，那就是写一个`__getattr__()`方法，动态返回一个属性。修改如下：
-
-```
+```python
 class Student(object):
 
     def __init__(self):
@@ -726,21 +701,15 @@ class Student(object):
     def __getattr__(self, attr):
         if attr=='score':
             return 99
+
+s = Student()
+s.name
+# 'Michael'
+s.score
+# 99
 ```
 
-当调用不存在的属性时，比如`score`，Python解释器会试图调用`__getattr__(self, 'score')`来尝试获得属性，这样，我们就有机会返回`score`的值：
-
-```
->>> s = Student()
->>> s.name
-'Michael'
->>> s.score
-99
-```
-
-返回函数也是完全可以的：
-
-```
+```python
 class Student(object):
 
     def __getattr__(self, attr):
@@ -823,30 +792,19 @@ Chain().users('michael').repos
 
 ##### __call__
 
-一个对象实例可以有自己的属性和方法，当我们调用实例方法时，我们用`instance.method()`来调用。能不能直接在实例本身上调用呢？在Python中，答案是肯定的。
-
-任何类，只需要定义一个`__call__()`方法，就可以直接对实例进行调用。请看示例：
-
-```
+```python
 class Student(object):
     def __init__(self, name):
         self.name = name
 
-    def __call__(self):
+    def __call__(self): # 直接在实例本身上调用
         print('My name is %s.' % self.name)
+
+s = Student('Michael')
+s() # self参数不要传入
 ```
 
-```
->>> s = Student('Michael')
->>> s() # self参数不要传入
-My name is Michael.
-```
-
-`__call__()`还可以定义参数。对实例进行直接调用就好比对一个函数进行调用一样，所以你完全可以把对象看成函数，把函数看成对象，因为这两者之间本来就没啥根本的区别。
-
-如果你把对象看成函数，那么函数本身其实也可以在运行期动态创建出来，因为类的实例都是运行期创建出来的，这么一来，我们就模糊了对象和函数的界限。
-
-那么，怎么判断一个变量是对象还是函数呢？其实，更多的时候，我们需要判断一个对象是否能被调用，能被调用的对象就是一个`Callable`对象，比如函数和我们上面定义的带有`__call__()`的类实例：
+通过`callable()`函数，我们就可以判断一个对象是否是“可调用”对象
 
 ```
 >>> callable(Student())
@@ -861,10 +819,80 @@ False
 False
 ```
 
-通过`callable()`函数，我们就可以判断一个对象是否是“可调用”对象。
-
-### 小结
-
-Python的class允许定义许多定制方法，可以让我们非常方便地生成特定的类。
-
 本节介绍的是最常用的几个定制方法，还有很多可定制的方法，请参考[Python的官方文档](http://docs.python.org/3/reference/datamodel.html#special-method-names)。
+
+#### 使用枚举类
+
+##### `Enum`类
+
+```python
+from enum import Enum
+
+Month = Enum('Month', ('Jan', 'Feb', 'Mar', 'Apr', 'May',
+                       'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
+
+for name, member in Month.__members__.items():
+    print(name, '=>', member, ',', member.value)
+```
+
+`value`属性则是自动赋给成员的`int`常量，默认从`1`开始计数。
+
+如果需要更精确地控制枚举类型，可以从`Enum`派生出自定义类：
+
+```python
+from enum import Enum, unique
+
+@unique # `@unique`装饰器可以帮助我们检查保证没有重复值
+class Weekday(Enum):
+    Sun = 0 # Sun的value被设定为0
+    Mon = 1
+    Tue = 2
+    Wed = 3
+    Thu = 4
+    Fri = 5
+    Sat = 6
+```
+
+```
+>>> day1 = Weekday.Mon
+>>> print(day1)
+Weekday.Mon
+>>> print(Weekday.Tue)
+Weekday.Tue
+>>> print(Weekday['Tue'])
+Weekday.Tue
+>>> print(Weekday.Tue.value)
+2
+>>> print(day1 == Weekday.Mon)
+True
+>>> print(day1 == Weekday.Tue)
+False
+>>> print(Weekday(1))
+Weekday.Mon
+>>> print(day1 == Weekday(1))
+True
+>>> Weekday(7)
+Traceback (most recent call last):
+  ...
+ValueError: 7 is not a valid Weekday
+>>> for name, member in Weekday.__members__.items():
+...     print(name, '=>', member)
+...
+Sun => Weekday.Sun
+Mon => Weekday.Mon
+Tue => Weekday.Tue
+Wed => Weekday.Wed
+Thu => Weekday.Thu
+Fri => Weekday.Fri
+Sat => Weekday.Sat
+```
+
+可见，既可以用成员名称引用枚举常量，又可以直接根据value的值获得枚举常量。
+
+### 练习
+
+把`Student`的`gender`属性改造为枚举类型，可以避免使用字符串：
+
+```
+# -*- coding: utf-8 -*- from enum import Enum, unique ``# 测试: bart = Student('Bart', Gender.Male) if bart.gender == Gender.Male:     print('测试通过!') else:     print('测试失败!')
+```
