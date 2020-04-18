@@ -23,8 +23,8 @@ char *mystrcat(char *str1, char *str2)
     while (*str)      //当str不为“\0”时不断向下移
         str++;
     while (*str2)
-        *str++ = *str2++; //将str2复制到str1的末尾，并在末尾处加入“\0”使字符串截止
-    *str = '\0';
+        *str++ = *str2++; //将str2复制到str1的末尾
+    *str = '\0'; //末尾一定添加“\0”使字符串截止
     return str1;
 }
 
@@ -32,16 +32,12 @@ char *mystrcpy(char *dest, const char *src)
 {
     assert(dest != NULL && src != NULL);
     char *index = dest; //记录首地址
-    while ((*dest++ = *src++))
-    {
-    }
+    while ((*dest++ = *src++)) {} //一个一个复制，直到结尾/0
     return index;
 }
 
-int mystrcmp(const char *str1, const char *str2)
-{
-    while (*str1 || *str2)
-    {
+int mystrcmp(const char *str1, const char *str2) {
+    while (*str1 || *str2) {
         if (*str1 > *str2)
             return 1;
         else if (*str1 < *str2)
