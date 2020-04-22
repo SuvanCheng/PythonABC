@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/allen/Documents/GitHub/PythonABC/HEBUT/LinkedList.h
+iostream
+-
+
+/Users/allen/Documents/GitHub/PythonABC/HEBUT/Solution.h
+string
+-
+iostream
+-
+cmath
+-
+algorithm
+-
+iomanip
+-
+
+/Users/allen/Documents/GitHub/PythonABC/HEBUT/main.cpp
+iostream
+-
+Solution.h
+/Users/allen/Documents/GitHub/PythonABC/HEBUT/Solution.h
+LinkedList.h
+/Users/allen/Documents/GitHub/PythonABC/HEBUT/LinkedList.h
+
