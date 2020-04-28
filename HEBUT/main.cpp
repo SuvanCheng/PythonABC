@@ -1,9 +1,29 @@
 #include <iostream>
 #include "Solution.h"
 #include "LinkedList.h"
+#include "Temp/temp.h"
 
 int main() {
     Solution solution;
+
+
+    /*int a = 10;
+    int &b = a;
+    int* c = &a;
+
+    int a1[] = {1,2,3,4,5,6,7,8,9,0};
+    int (&b1)[10] = a1;
+    int* c1 = a1;
+
+    std::cout << sizeof(a) << std::endl;
+    std::cout << sizeof(b) << std::endl;
+    std::cout << sizeof(c) << std::endl;
+    std::cout << sizeof(a1) << std::endl;
+    std::cout << sizeof(b1) << std::endl;
+    std::cout << sizeof(c1) << std::endl;*/
+
+
+
 /*
     //1.删减字符串中特定的字符
     std::string str;
@@ -126,6 +146,8 @@ int main() {
     linkedList->print();*/
 
     //12.
+
+
 
     return 0;
 }

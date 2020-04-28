@@ -89,6 +89,12 @@
 		<Unit filename="/Users/allen/Documents/GitHub/PythonABC/HEBUT/Solution.h">
 			<Option target="HEBUT"/>
 		</Unit>
+		<Unit filename="/Users/allen/Documents/GitHub/PythonABC/HEBUT/Temp/temp.cpp">
+			<Option target="HEBUT"/>
+		</Unit>
+		<Unit filename="/Users/allen/Documents/GitHub/PythonABC/HEBUT/Temp/temp.h">
+			<Option target="HEBUT"/>
+		</Unit>
 		<Unit filename="/Users/allen/Documents/GitHub/PythonABC/HEBUT/main.cpp">
 			<Option target="HEBUT"/>
 		</Unit>

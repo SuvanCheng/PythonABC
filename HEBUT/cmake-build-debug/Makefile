@@ -150,6 +150,33 @@ Solution.cpp.s:
 	$(MAKE) -f CMakeFiles/HEBUT.dir/build.make CMakeFiles/HEBUT.dir/Solution.cpp.s
 .PHONY : Solution.cpp.s
 
+Temp/temp.o: Temp/temp.cpp.o
+
+.PHONY : Temp/temp.o
+
+# target to build an object file
+Temp/temp.cpp.o:
+	$(MAKE) -f CMakeFiles/HEBUT.dir/build.make CMakeFiles/HEBUT.dir/Temp/temp.cpp.o
+.PHONY : Temp/temp.cpp.o
+
+Temp/temp.i: Temp/temp.cpp.i
+
+.PHONY : Temp/temp.i
+
+# target to preprocess a source file
+Temp/temp.cpp.i:
+	$(MAKE) -f CMakeFiles/HEBUT.dir/build.make CMakeFiles/HEBUT.dir/Temp/temp.cpp.i
+.PHONY : Temp/temp.cpp.i
+
+Temp/temp.s: Temp/temp.cpp.s
+
+.PHONY : Temp/temp.s
+
+# target to generate assembly for a file
+Temp/temp.cpp.s:
+	$(MAKE) -f CMakeFiles/HEBUT.dir/build.make CMakeFiles/HEBUT.dir/Temp/temp.cpp.s
+.PHONY : Temp/temp.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -189,6 +216,9 @@ help:
 	@echo "... Solution.o"
 	@echo "... Solution.i"
 	@echo "... Solution.s"
+	@echo "... Temp/temp.o"
+	@echo "... Temp/temp.i"
+	@echo "... Temp/temp.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

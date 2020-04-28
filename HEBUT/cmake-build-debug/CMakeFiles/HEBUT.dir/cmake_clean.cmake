@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/HEBUT.dir/Solution.cpp.o"
+  "CMakeFiles/HEBUT.dir/Temp/temp.cpp.o"
   "CMakeFiles/HEBUT.dir/main.cpp.o"
   "HEBUT"
   "HEBUT.pdb"
